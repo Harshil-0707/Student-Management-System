@@ -1,20 +1,28 @@
 package com.harshil.student.app;
 
 import java.util.Scanner;
-import service.StudentService;
+import com.harshil.student.util.DBConnection;
+import java.sql.Connection;
+import com.harshil.student.dao.StudentDAO;
+import com.harshil.student.service.StudentService;
 
 public class App{
 
     public static void main(String[] args){
 
         final Scanner sc = new Scanner(System.in);
-        StudentService ss = new StudentService();
+        StudentDAO dao = null;
+
+        try(Connection connection = DBConnection.getConnection()){
+            dao = new StudentDAO(connection);
+            connection.setAutoCommit(false);
+            StudentService ss = new StudentService(dao);
 
         boolean running = true;
 
         while(running){
             System.out.println("=================================");
-            System.out.println("\tSTUDENT MANAGEMENT SYSTEM");
+            System.out.println("   STUDENT MANAGEMENT SYSTEM");
             System.out.println("=================================");
             System.out.println("1. Add Student");
             System.out.println("2. View All Students");
@@ -22,7 +30,7 @@ public class App{
             System.out.println("4. Delete Student");
             System.out.println("5. Search Student by Email");
             System.out.println("6. Exit");
-            System.out.print("Enter your choice:");
+            System.out.print("Enter your choice: ");
 
             if(!sc.hasNextInt()){
                 System.out.println("Enter a number!!!");
@@ -36,7 +44,7 @@ public class App{
                     ss.add(sc);
                     break;
                 case 2:
-                    ss.view(sc);
+                    ss.view();
                     break;
                 case 3:
                     ss.update(sc);
@@ -49,14 +57,19 @@ public class App{
                     break;
                 case 6:
                     running = false;
+                    connection.commit();
                     System.out.println("Thank you for using Student Management System!");
                     System.out.println("Application closed successfully.");
+                    System.exit(0);
                     break;
                 default: 
                     System.out.println("Invalid choice!!!");
                     continue;
             }
 
+        }
+        }catch(Exception e){
+            e.printStackTrace();
         }
         sc.close();
 

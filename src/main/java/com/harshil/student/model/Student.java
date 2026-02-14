@@ -2,51 +2,42 @@ package com.harshil.student.model;
 import java.util.UUID;
 
 public class Student{
-    private String id;
+    private int id;
+    private static int idCounter = 100;
     private String name;
     private String email;
     private int age;
     private String course;
 
-    private Student(Builder builder){
-        this.id = UUID.randomUUID().toString().subString(0,6);
-        this.name = builder.name;
-        this.email = builder.email;
-        this.age = builder.age;
-        this.course = builder.course;
+    public Student(String name , String email , int age , String course){
+        this.id = ++Student.idCounter;
+        this.name = name;
+        this.email = email;
+        this.age = age;
+        this.course = course;
+    }
+    
+    // Setters
+
+    public void setName(String name){
+        this.name = name;
     }
 
-    public static class Builder{
-        private String name;
-        private String email;
-        private int age;
-        private String course;
+    public void setEmail(String email){
+        this.email = email;
+    }
 
-        public Builder name(String name){
-            this.name = name;
-            return this;
-        }
+    public void setAge(int age){
+        this.age = age;
+    }
 
-        public Builder email(String email){
-            this.email = email;
-            return this;
-        }
-
-        public Builder age(int age){
-            this.age = age;
-            return this;
-        }
-
-        public Builder course(String course){
-            this.course = course;
-            return this;
-        }
-
+    public void setCourse(String course){
+        this.course = course;
     }
 
     // Getters
 
-    public String getId(){
+    public int getId(){
         return this.id;
     }
 
@@ -58,7 +49,7 @@ public class Student{
         return this.email;
     }
 
-    public int getAge(int age){
+    public int getAge(){
         return this.age;
     }
 
