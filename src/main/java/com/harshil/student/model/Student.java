@@ -1,16 +1,21 @@
 package com.harshil.student.model;
-import java.util.UUID;
 
 public class Student{
     private int id;
-    private static int idCounter = 100;
     private String name;
     private String email;
     private int age;
     private String course;
 
     public Student(String name , String email , int age , String course){
-        this.id = ++Student.idCounter;
+        this.name = name;
+        this.email = email;
+        this.age = age;
+        this.course = course;
+    }
+
+    public Student(int id,String name , String email , int age , String course){
+        this.id = id;
         this.name = name;
         this.email = email;
         this.age = age;
@@ -18,6 +23,10 @@ public class Student{
     }
     
     // Setters
+
+    public void setId(int id){
+        this.id = id;
+    }
 
     public void setName(String name){
         this.name = name;
