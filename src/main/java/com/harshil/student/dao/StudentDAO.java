@@ -3,8 +3,8 @@ package com.harshil.student.dao;
 import java.sql.PreparedStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
-import java.sql.SQLException;
 import com.harshil.student.model.Student;
 
 public class StudentDAO{
@@ -15,79 +15,127 @@ public class StudentDAO{
         this.con = con;
     }
 
-    public void save(Student student) throws SQLException {
+    public int save(Student student) {
 
-        String sql = "INSERT INTO student(id,name,email,age,course) VALUES (?,?,?,?,?)";
+        String sql = "INSERT INTO student(name,email,age,course) VALUES (?,?,?,?)";
+        int generatedId = 0;
 
-        PreparedStatement ps = con.prepareStatement(sql);
-        ps.setInt(1,student.getId());
-        ps.setString(2,student.getName());
-        ps.setString(3,student.getEmail());
-        ps.setInt(4,student.getAge());
-        ps.setString(5,student.getCourse());
-
-        ps.executeUpdate();
-
+        try (
+                PreparedStatement ps =
+                    con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+            ) {
+            ps.setString(1,student.getName());
+            ps.setString(2,student.getEmail());
+            ps.setInt(3,student.getAge());
+            ps.setString(4,student.getCourse());
+            
+            int rows = ps.executeUpdate();
+            System.out.println("Rows inserted: " + rows);
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    generatedId = rs.getInt(1);
+                    student.setId(generatedId);
+                    System.out.println("Inside save " + generatedId);
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return generatedId;
     }
+
     
-    public void update(Student student) throws SQLException {
-        String sql = "UPDATE student SET id = ? , name = ? email = ?,age = ?,course = ? WHERE id = ?" ;
+    public void update(Student student) {
+       
+        String sql = "UPDATE student SET name = ?, email = ?,age = ?,course = ? WHERE id = ?" ;
 
-        PreparedStatement ps = con.prepareStatement(sql);
-        ps.setInt(1,student.getId());
-        ps.setString(2,student.getName());
-        ps.setString(3,student.getEmail());
-        ps.setInt(4,student.getAge());
-        ps.setString(5,student.getCourse());
-
-        ps.executeUpdate();
-
-    }
-
-    public void delete(Student student) throws SQLException {
-        
-        String sql = "DELETE FROM student WHERE id = ?";
-        
-        PreparedStatement ps = con.prepareStatement(sql);
-        ps.setInt(1,student.getId());
-        ps.executeUpdate();
-    }
-
-    public ArrayList<Student> view() throws SQLException {
-        String sql = "SELECT * FROM student";
-        PreparedStatement ps = con.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-        
-        ArrayList<Student> allStudents = new ArrayList<>();
-
-        Student s = null;
-
-        while(rs.next()){
-            String name = rs.getString("name");
-            String email = rs.getString("email");
-            int age = rs.getInt("age");
-            String course = rs.getString("course");
-            s = new Student(name,email,age,course);
-            allStudents.add(s);
+        try(PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1,student.getName());
+            ps.setString(2,student.getEmail());
+            ps.setInt(3,student.getAge());
+            ps.setString(4,student.getCourse());
+            ps.setInt(5,student.getId());
+            ps.executeUpdate();
+        }catch(Exception e){
+            e.printStackTrace();
         }
 
+    }
+
+    public boolean delete(int id) {
+        
+        String sql = "DELETE FROM student WHERE id = ?";
+
+        try(PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1,id);
+            ps.executeUpdate();
+            return true;
+        }catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    public ArrayList<Student> view(){
+        String sql = "SELECT * FROM student";
+        ArrayList<Student> allStudents = new ArrayList<>();
+        
+        try(PreparedStatement ps = con.prepareStatement(sql)){
+            ResultSet rs = ps.executeQuery();
+            Student s = null;
+            while(rs.next()){
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                int age = rs.getInt("age");
+                String course = rs.getString("course");
+                s = new Student(id , name , email , age , course);
+                allStudents.add(s);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
         return allStudents;
     }
 
-    public Student search(Student student,String email) throws SQLException {
+    public Student searchByEmail(String email) {
         String sql = "SELECT * FROM student WHERE email = ?";
-        PreparedStatement ps = con.prepareStatement(sql);
-        ps.setString(1,email);
-        ResultSet rs = ps.executeQuery();
-
         Student s = null;
+       
+        try(PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1,email);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                int age = rs.getInt("age");
+                String course = rs.getString("course");
+                s = new Student(id , name , email , age , course);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+       
+        return s;
+    }
 
-        while(rs.next()){
-            String name = rs.getString("name");
-            String newEmail = rs.getString("email");
-            int age = rs.getInt("age");
-            String course = rs.getString("course");
-            s = new Student(name,newEmail,age,course);
+    public Student searchById(int id){
+        String sql = "SELECT * FROM student WHERE id = ?";
+        Student s = null;
+        try(PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1,id);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                int age = rs.getInt("age");
+                String course = rs.getString("course");
+                s = new Student(id,name,email,age,course);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
         }
         return s;
     }
