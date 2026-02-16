@@ -151,8 +151,6 @@ mvn exec:java -Dexec.mainClass="com.harshil.student.app.App"
 - `PreparedStatement.executeUpdate()`
 - `PreparedStatement.executeQuery()`
 - `ResultSet.next()`
-- `Connection.setAutoCommit()`
-
 ---
 
 ## 📌 Future Improvements
