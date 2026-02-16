@@ -44,10 +44,10 @@ public class StudentDAO{
         return generatedId;
     }
 
-    
-    public void update(Student student) {
+    public boolean update(Student student) {
        
         String sql = "UPDATE student SET name = ?, email = ?,age = ?,course = ? WHERE id = ?" ;
+        int rowsAffected = 0;
 
         try(PreparedStatement ps = con.prepareStatement(sql)){
             ps.setString(1,student.getName());
@@ -55,26 +55,25 @@ public class StudentDAO{
             ps.setInt(3,student.getAge());
             ps.setString(4,student.getCourse());
             ps.setInt(5,student.getId());
-            ps.executeUpdate();
+            rowsAffected = ps.executeUpdate();
         }catch(Exception e){
             e.printStackTrace();
         }
-
+        return rowsAffected > 0;
     }
 
     public boolean delete(int id) {
         
         String sql = "DELETE FROM student WHERE id = ?";
+        int rowsAffected = 0;
 
         try(PreparedStatement ps = con.prepareStatement(sql)){
             ps.setInt(1,id);
-            ps.executeUpdate();
-            return true;
+            rowsAffected = ps.executeUpdate();
         }catch(Exception e){
             e.printStackTrace();
-            return false;
         }
-
+        return rowsAffected > 0;
     }
 
     public ArrayList<Student> view(){
